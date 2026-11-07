@@ -1,11 +1,9 @@
 ---
 import { Mod } from "../../../shared/types/Mod";
-import BottomAnchor from "./BottomAnchor.astro";
 import { encode } from "html-entities";
-import { ChevronDownIcon, HeartIcon } from "@heroicons/react/16/solid";
+import { ArrowDownTrayIcon, ChevronDownIcon, CodeBracketIcon } from "@heroicons/react/16/solid";
 import ExpandableLongText from "./ExpandableLongText.astro";
 import { isValidUrl } from "../../../shared/isValidUrl";
-import { getDomainFromUrl } from "../../../shared/getDomainFromUrl";
 import FundingButton from "./FundingButton.astro";
 import AddCheckbox from "./AddCheckbox.astro";
 import { CoreMod } from "../../../shared/CoreMods";
@@ -31,6 +29,7 @@ const { mods, core = false } = Astro.props as Props;
 {
   (() => {
     const mod = mods[0];
+    const funding = mod.funding.filter((url) => isValidUrl(url));
 
     return (
       <mod-card
@@ -39,10 +38,9 @@ const { mods, core = false } = Astro.props as Props;
         class={`
           before:absolute
           before:backdrop-blur
-          before:content['']
+          before:content-['']
           before:inset-2
-          before:overflow-hidden
-          before:rounded-lg
+          before:rounded-xl
           before:z-[-1]
           flex
           flex-col
@@ -67,159 +65,249 @@ const { mods, core = false } = Astro.props as Props;
         ) : null}
         <div
           class={`
-            bg-card-header-bg
-            block
-            overflow-hidden
-            relative
-            rounded-t-lg
-            w-full
+            border
+            border-card-border
+            duration-200
+            flex
+            flex-1
+            flex-col
+            group
+            hover:border-highlight/40
+            hover:shadow-2xl
+            rounded-xl
+            shadow-lg
+            transition-[border-color,box-shadow]
           `}
-          style="padding-bottom: calc(100% / 178 * 100);"
         >
           <div
             class={`
-              absolute
-              flex
-              h-full
-              inset-0
-              items-center
-              justify-center
+              bg-card-header-bg
+              block
+              overflow-hidden
+              relative
+              rounded-t-[11px]
               w-full
             `}
+            style="padding-bottom: calc(100% / 178 * 100);"
           >
-            <LazyImage
+            <div
               class={`
-                h-screen
-                inline-block
-                max-h-full
-                max-w-full
+                absolute
+                flex
+                h-full
+                inset-0
+                items-center
+                justify-center
+                w-full
               `}
-              alt={`${mod.name} v${mod.version}`}
-              src={mod.cover != null ? mod.cover : `images/image-missing.svg`}
-              src-hq={mod.ogCover || undefined}
-            />
+            >
+              <LazyImage
+                class={`
+                  duration-300
+                  group-hover:scale-[1.03]
+                  h-screen
+                  inline-block
+                  max-h-full
+                  max-w-full
+                  transition-transform
+                  ${mod.cover == null ? "opacity-40" : ""}
+                `}
+                alt={`${mod.name} v${mod.version}`}
+                src={mod.cover != null ? mod.cover : `images/image-missing.svg`}
+                src-hq={mod.ogCover || undefined}
+              />
+            </div>
           </div>
-        </div>
-        <div
-          class={`
-            bg-card-body-bg
-            flex-grow
-            relative
-            rounded-b-lg
-            text-card-body-text
-          `}
-        >
           <div
             class={`
-              block
-              break-words
-              p-4
+              bg-card-body-bg
+              flex
+              flex-1
+              flex-col
+              rounded-b-[11px]
+              text-card-body-text
             `}
           >
-            <ExpandableLongText>
-              <div
-                class={`
-                font-semibold
+            <div
+              class={`
+                break-words
+                p-4
               `}
-              >
-                <mod-name>{mod.name}</mod-name>
-                <mod-version
+            >
+              <ExpandableLongText>
+                <div
                   class={`
-                    before:content-['v']
-                    pl-1
-                    text-[.6em]
-                `}
-                >
-                  {mod.version}
-                </mod-version>
-              </div>
-              <mod-author
-                class={`
-                  block
-                  italic
-                  text-[.7em]
-              `}
-              >
-                {mod.author}
-              </mod-author>
-              {mod.ai && mod.ai != "none" ? (
-                <mod-ai
-                  class={`
-                    badge
-                    badge-sm
                     flex
-                    w-fit
-                    my-1
-                    ${mod.ai == "fully-vibed" ? "badge-warning" : "badge-info"}
+                    flex-wrap
+                    gap-x-1.5
+                    gap-y-1
+                    items-center
                   `}
-                  title={mod.ai == "fully-vibed" ? "This mod was largely written by AI" : "This mod was made with AI assistance"}
                 >
-                  {mod.ai == "fully-vibed" ? "Vibe Coded" : "AI Assisted"}
-                </mod-ai>
-              ) : null}
-              {mod.description ? (
-                <mod-description
+                  <mod-name class="text-base leading-snug font-semibold">{mod.name}</mod-name>
+                  <mod-version
+                    class={`
+                      before:content-['v']
+                      bg-card-body-text/10
+                      font-medium
+                      leading-none
+                      px-1.5
+                      py-1
+                      rounded-md
+                      text-[0.7rem]
+                      text-card-body-text/75
+                      whitespace-nowrap
+                    `}
+                  >
+                    {mod.version}
+                  </mod-version>
+                </div>
+                <mod-author
                   class={`
-                    text-sm
-                    whitespace-pre-line
+                    block
+                    mt-0.5
+                    text-card-body-text/60
+                    text-xs
+                    ${mod.author ? "before:content-['by_']" : ""}
+                  `}
+                >
+                  {mod.author}
+                </mod-author>
+                {mod.ai && mod.ai != "none" ? (
+                  <mod-ai
+                    class={`
+                      badge
+                      badge-sm
+                      flex
+                      mt-2
+                      w-fit
+                      ${mod.ai == "fully-vibed" ? "badge-warning" : "badge-info"}
+                    `}
+                    title={mod.ai == "fully-vibed" ? "This mod was largely written by AI" : "This mod was made with AI assistance"}
+                  >
+                    {mod.ai == "fully-vibed" ? "Vibe Coded" : "AI Assisted"}
+                  </mod-ai>
+                ) : null}
+                {mod.description ? (
+                  <mod-description
+                    class={`
+                      block
+                      leading-relaxed
+                      mt-2
+                      text-card-body-text/85
+                      text-sm
+                      whitespace-pre-line
+                    `}
+                    set:html={encode(mod.description).replace(/\n/g, "&#10;").replace(/\r/g, "")}
+                  />
+                ) : null}
+              </ExpandableLongText>
+            </div>
+            <div
+              class={`
+                border-card-border
+                border-t
+                flex
+                flex-wrap
+                gap-2
+                items-center
+                mt-auto
+                px-4
+                py-3
+              `}
+            >
+              <AddCheckbox
+                title={core ? "Core mods are always included" : "Mark mods to batch download them"}
+                class={`
+                  checkbox-xl
+                  checkbox-primary
+                  checked:checkbox-success
+                  mod-checkbox
                 `}
-                  set:html={encode(mod.description).replace(/\n/g, "&#10;").replace(/\r/g, "")}
-                />
-              ) : null}
-            </ExpandableLongText>
-          </div>
-          {(() => {
-            const buttons = [];
-            if (mod.download) {
-              buttons.push(
-                <div class="align-middle join mr-2">
+                plusClass={`
+                  m-[.125rem]
+                  text-white
+                  ${core && "hidden"}
+                `}
+                outerClass={`
+                  align-middle
+                  hidden
+                  inline-block
+                  overflow-clip
+                  qavs-none
+                  rounded-lg
+                  script-inline-block
+                  ${!core && "bg-primary"}
+                `}
+                disabled={!!core}
+                checked={!!core}
+              />
+              {mod.download ? (
+                <div class="flex items-stretch">
                   <a
                     href={mod.download}
                     class={`
                       btn
                       btn-primary
                       btn-sm
-                      join-item
+                      gap-1.5
                       mod-download
-                      rounded-lg
                       text-white
+                      ${mods.length > 1 ? "rounded-l-lg rounded-r-none" : "rounded-lg"}
                     `}
                   >
+                    <ArrowDownTrayIcon
+                      className="size-4"
+                      aria-hidden="true"
+                    />
                     Download
                   </a>
                   {mods.length > 1 ? (
-                    <details class="join-item dropdown">
+                    <details class="dropdown flex">
                       <summary
                         class={`
-                            border-l
-                            border-l-white-alpha-20
-                            btn
-                            btn-primary
-                            btn-sm
-                            cursor-pointer
-                            h-[100%]
-                            hover:border-l-white-alpha-20
-                            px-1.5
-                            rounded-r-lg
-                          `}
+                          border-l
+                          border-l-white-alpha-20
+                          btn
+                          btn-primary
+                          btn-sm
+                          cursor-pointer
+                          h-full
+                          hover:border-l-white-alpha-20
+                          px-2
+                          rounded-l-none
+                          rounded-r-lg
+                        `}
+                        title={`All ${mods.length} versions`}
+                        aria-label={`All ${mods.length} versions`}
                       >
                         <ChevronDownIcon className="size-4 text-white" />
                       </summary>
                       <DropdownListMenu>
+                        <li class="px-3 pt-1.5 pb-1 text-[0.7rem] font-semibold tracking-wide uppercase opacity-60">
+                          {mods.length} versions
+                        </li>
                         {mods.map((mod, index) => (
                           <DropdownListMenuItem>
                             <a
                               class={`
-                                block
-                                font-semibold
-                                px-4
-                                py-2
+                                flex
+                                gap-4
+                                items-center
+                                justify-between
+                                px-3
+                                py-1.5
                                 text-sm
                                 ${index > 0 && "mod-download"}
                               `}
                               href={mod.download}
+                              title={`Download v${mod.version}`}
                             >
-                              {mod.version}
+                              <span>v{mod.version}</span>
+                              <ArrowDownTrayIcon
+                                className="size-4 opacity-50"
+                                aria-hidden="true"
+                              />
                             </a>
                           </DropdownListMenuItem>
                         ))}
@@ -227,83 +315,35 @@ const { mods, core = false } = Astro.props as Props;
                     </details>
                   ) : null}
                 </div>
-              );
-            }
-
-            if (mod.source) {
-              buttons.push(
+              ) : null}
+              {mod.source ? (
                 <a
                   href={mod.source}
                   target="_blank"
                   class={`
-                    align-middle
+                    border-card-border
                     btn
-                    btn-primary
+                    btn-ghost
                     btn-sm
+                    gap-1.5
+                    hover:bg-highlight/10
+                    hover:border-highlight/50
                     mod-source
-                    mr-2
                     qavs-none
                     rounded-lg
-                    text-white
+                    text-card-body-text
                   `}
                 >
-                  Source Code
+                  <CodeBracketIcon
+                    className="size-4"
+                    aria-hidden="true"
+                  />
+                  Source
                 </a>
-              );
-            }
-
-            const funding = mod.funding.filter((url) => isValidUrl(url));
-
-            if (funding.length > 0) {
-              buttons.push(<FundingButton funding={funding} />);
-            }
-
-            return (
-              <BottomAnchor>
-                <div
-                  class={`
-                    ml-2
-                    pb-4
-                  `}
-                >
-                  <div
-                    class={`
-                      ml-2
-                    `}
-                  >
-                    <AddCheckbox
-                      title={core ? "Core mods are always included" : "Mark mods to batch download them"}
-                      class={`
-                        checkbox-xl
-                        checkbox-primary
-                        checked:checkbox-success
-                        mod-checkbox
-                      `}
-                      plusClass={`
-                        m-[.125rem]
-                        text-white
-                        ${core && "hidden"}
-                      `}
-                      outerClass={`
-                        align-middle
-                        hidden
-                        inline-block
-                        mr-2
-                        overflow-clip
-                        qavs-none
-                        rounded-lg
-                        script-inline-block
-                        ${!core && "bg-primary"}
-                      `}
-                      disabled={!!core}
-                      checked={!!core}
-                    />
-                    {buttons}
-                  </div>
-                </div>
-              </BottomAnchor>
-            );
-          })()}
+              ) : null}
+              {funding.length > 0 ? <FundingButton funding={funding} /> : null}
+            </div>
+          </div>
         </div>
       </mod-card>
     );

@@ -12,13 +12,13 @@ const { id, placeholder, rows, required = false } = Astro.props as Props;
 <div class="block min-w-0 text-left">
   <label
     for={id}
-    class="generator-label"
+    class="field-label"
   >
     <slot />
     {required && <span class="text-error" aria-hidden="true">*</span>}
   </label>
   <textarea
-    class="generator-field resize-y py-2"
+    class="field-input resize-y py-2"
     id={id}
     placeholder={placeholder}
     rows={rows}

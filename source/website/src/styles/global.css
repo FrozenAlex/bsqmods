@@ -6,6 +6,9 @@
   themes: business --default;
 }
 
+/* Applies while the Core Mods category is minimized (set on <html> before the page renders). */
+@custom-variant core-mods-minimized (&:where([data-core-mods-minimized] *));
+
 @theme {
   /* Custom breakpoints */
   --breakpoint-xxl: 1536px;
@@ -79,16 +82,16 @@ body {
 }
 
 @layer components {
-  /* Shared look for the generator's text inputs, text areas and select menus. */
-  .generator-field {
+  /* Shared look for text inputs, text areas and select menus. */
+  .field-input {
     @apply block w-full min-w-0 rounded-lg border border-input-border bg-input-bg px-3 text-sm leading-normal text-input-text shadow-inner backdrop-blur transition-[border-color,box-shadow] duration-150 placeholder:text-input-placeholder hover:border-highlight/60 focus:border-highlight focus:ring-3 focus:ring-highlight/30 focus:outline-none data-prefilled:border-highlight/70;
   }
 
-  .generator-label {
+  .field-label {
     @apply mb-1.5 flex items-baseline gap-1 text-sm font-semibold leading-snug text-card-body-text;
   }
 
-  .generator-hint {
+  .field-hint {
     @apply mt-1.5 text-xs leading-snug text-card-body-text/70;
   }
 }

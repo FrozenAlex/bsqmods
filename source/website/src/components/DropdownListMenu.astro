@@ -9,14 +9,20 @@ const { class: className } = Astro.props as Props;
 <ul
   class={`
     -translate-x-1/2
-    backdrop-blur
+    backdrop-blur-md
     bg-dropdown-menu-bg
+    border
+    border-card-border
     dropdown-content
     left-1/2
-    mt-1
-    p-2
-    rounded-lg
-    shadow
+    max-h-72
+    min-w-36
+    mt-1.5
+    overflow-y-auto
+    overscroll-contain
+    p-1.5
+    rounded-xl
+    shadow-2xl
     text-dropdown-menu-text
     top-[100%]
     w-max

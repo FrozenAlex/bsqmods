@@ -226,7 +226,7 @@ if (!baseUrl.endsWith("/")) {
     --input-border: rgba(255, 255, 255, 0.15);
     --card-border: rgba(255, 255, 255, 0.1);
     --highlight: #7dd3fc;
-    --dropdown-menu-bg: #000011b2;
+    --dropdown-menu-bg: #000011e6;
     --dropdown-menu-text: #ffffff;
     --dropdown-menu-hover: rgba(255, 255, 255, 0.1);
     --dropzone-bg: #040b2fb2;
@@ -248,7 +248,7 @@ if (!baseUrl.endsWith("/")) {
     --input-border: rgba(0, 0, 0, 0.2);
     --card-border: rgba(0, 0, 0, 0.1);
     --highlight: #0369a1;
-    --dropdown-menu-bg: #ffffffb3;
+    --dropdown-menu-bg: #ffffffeb;
     --dropdown-menu-text: #000000;
     --dropdown-menu-hover: rgba(0, 0, 0, 0.1);
     --dropzone-bg: #ffffffb3;
@@ -277,6 +277,40 @@ if (!baseUrl.endsWith("/")) {
   import { bindMultiClickAction } from "../../../shared/bindMultiClickAction";
   import { isNullOrWhitespace } from "../../../shared/isNullOrWhitespace";
   import { isQavs } from "../isQavs";
+
+  // Dropdown menus are <details> elements, which stay open until their summary is clicked again.
+  // Close them when another one opens, on clicks outside them, after picking an item, and on Escape.
+  function closeDropdowns(keepOpen: Element | null = null) {
+    for (const details of document.querySelectorAll<HTMLDetailsElement>("details.dropdown[open]")) {
+      if (!keepOpen || !details.contains(keepOpen)) {
+        details.open = false;
+      }
+    }
+  }
+
+  document.addEventListener(
+    "toggle",
+    (e) => {
+      const details = e.target;
+
+      if (details instanceof HTMLDetailsElement && details.open && details.classList.contains("dropdown")) {
+        closeDropdowns(details);
+      }
+    },
+    true
+  );
+
+  document.addEventListener("click", (e) => {
+    const target = e.target as Element;
+
+    closeDropdowns(target.closest(".dropdown-content a") ? null : target.closest("details.dropdown"));
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key == "Escape") {
+      closeDropdowns();
+    }
+  });
 
   if (isQavs) {
     // 5 clicks on the footer redirects to google.com.

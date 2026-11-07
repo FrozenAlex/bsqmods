@@ -11,6 +11,7 @@ import { getCoreMods } from "../../../shared/CoreMods";
 import { readAllModsJson } from "../../../shared/readAllModsJson";
 import HeaderVersionSelector from "../components/HeaderVersionSelector.astro";
 import StickyBar from "../components/StickyBar.astro";
+import { ChevronDownIcon } from "@heroicons/react/20/solid";
 
 const modJson = readAllModsJson();
 
@@ -64,6 +65,15 @@ const coreMods = (await getCoreMods())[gameVersion];
 
 const libraryMods = modList.filter((mod) => mod[0].isLibrary);
 const nonLibraryMods = modList.filter((mod) => !mod[0].isLibrary);
+
+// Card counts for the section headings, matching what each ModList shows.
+const coreModIds = coreMods ? coreMods.mods.map((mod) => mod.id) : [];
+const coreCount = modList.filter((mods) => coreModIds.includes(mods[0].id || "")).length;
+const otherCount = nonLibraryMods.filter((mods) => !coreModIds.includes(mods[0].id || "")).length;
+const sectionHeaderClass = "mx-auto flex max-w-screen-mcb-7 flex-wrap items-center justify-between gap-3 px-4 pt-6 pb-1";
+const sectionTitleClass = "flex items-center gap-2.5 text-xl font-semibold text-white text-shadow";
+const sectionCountClass =
+  "rounded-full border border-white/15 bg-black/40 px-2.5 py-0.5 text-sm font-medium text-white/80 backdrop-blur [text-shadow:none]";
 ---
 
 <Layout
@@ -72,35 +82,52 @@ const nonLibraryMods = modList.filter((mod) => !mod[0].isLibrary);
   linkHome={true}
   clearLastVisited={true}
 >
+  <Fragment slot="early-head">
+    <script is:inline type="text/javascript">
+      // Apply the remembered Core Mods choice before the page renders, so the category doesn't flash open.
+      try {
+        if (localStorage.coreModsMinimized === "true") {
+          document.documentElement.setAttribute("data-core-mods-minimized", "");
+        }
+      } catch (e) {}
+    </script>
+  </Fragment>
   <HeaderVersionSelector
     slot="header-post-title"
     currentVersion={gameVersion}
   />
   <StickyBar gameVersion={gameVersion} />
-  <div class="px-safe">
+  <div class="px-safe pb-6">
     {
       coreMods && (
         <>
-          <div
-            class={`
-        block
-        pt-4
-        text-center
-        text-shadow
-        text-white
-        text-xl
-      `}
-          >
-            Core Mods
+          <div class={sectionHeaderClass}>
+            <h2 class={sectionTitleClass}>
+              <button
+                type="button"
+                id="toggleCoreMods"
+                class="group flex cursor-pointer items-center gap-2.5 rounded-lg focus-visible:ring-3 focus-visible:ring-highlight/40 focus-visible:outline-none"
+                aria-controls="coreModsList"
+                aria-expanded="true"
+                title="Minimize or expand the core mods"
+              >
+                Core Mods
+                <span class={sectionCountClass}>{coreCount}</span>
+                <span class="flex items-center gap-1 text-sm font-medium text-white/70 transition-colors group-hover:text-white">
+                  <span class="core-mods-minimized:hidden">Hide</span>
+                  <span class="hidden core-mods-minimized:inline">Show</span>
+                  <ChevronDownIcon
+                    className="size-5 rotate-180 transition-transform duration-200 core-mods-minimized:rotate-0"
+                    aria-hidden="true"
+                  />
+                </span>
+              </button>
+            </h2>
             <div class="hidden script-block">
               {coreMods && coreMods.mods.length > 0 ? (
                 <DownloadCoreModsLink
                   version={gameVersion}
-                  outerClass={`
-                block
-                text-center
-                pt-2.5
-              `}
+                  outerClass=""
                   class={`
                     btn
                     btn-primary
@@ -116,28 +143,27 @@ const nonLibraryMods = modList.filter((mod) => !mod[0].isLibrary);
             </div>
           </div>
 
-          <ModList
-            mods={modList}
-            core={true}
-            coreMods={coreMods ? coreMods.mods : []}
-          />
+          <div
+            id="coreModsList"
+            class="core-mods-minimized:hidden"
+          >
+            <ModList
+              mods={modList}
+              core={true}
+              coreMods={coreMods ? coreMods.mods : []}
+            />
+          </div>
         </>
       )
     }
     {
       nonLibraryMods && (
         <>
-          <div
-            class={`
-              block
-              pt-2
-              text-center
-              text-white
-              text-xl
-              text-shadow
-            `}
-          >
-            Other Mods
+          <div class={sectionHeaderClass}>
+            <h2 class={sectionTitleClass}>
+              Other Mods
+              <span class={sectionCountClass}>{otherCount}</span>
+            </h2>
           </div>
           <ModList
             mods={nonLibraryMods}
@@ -150,17 +176,8 @@ const nonLibraryMods = modList.filter((mod) => !mod[0].isLibrary);
     {
       false && libraryMods && (
         <>
-          <div
-            class={`
-              block
-              pt-2
-              text-center
-              text-white
-              text-xl
-              text-shadow
-            `}
-          >
-            Libraries
+          <div class={sectionHeaderClass}>
+            <h2 class={sectionTitleClass}>Libraries</h2>
           </div>
           <ModList
             mods={libraryMods}
@@ -178,3 +195,26 @@ const nonLibraryMods = modList.filter((mod) => !mod[0].isLibrary);
     }
   </style>
 </Layout>
+<script>
+  // Minimizes or expands the Core Mods category and remembers the choice for every game version.
+  const toggleCoreModsButton = document.getElementById("toggleCoreMods");
+
+  if (toggleCoreModsButton) {
+    const root = document.documentElement;
+    const attribute = "data-core-mods-minimized";
+
+    const syncExpanded = () => toggleCoreModsButton.setAttribute("aria-expanded", String(!root.hasAttribute(attribute)));
+
+    syncExpanded();
+    toggleCoreModsButton.addEventListener("click", () => {
+      const minimized = !root.hasAttribute(attribute);
+
+      root.toggleAttribute(attribute, minimized);
+      syncExpanded();
+
+      try {
+        localStorage.coreModsMinimized = String(minimized);
+      } catch (error) {}
+    });
+  }
+</script>

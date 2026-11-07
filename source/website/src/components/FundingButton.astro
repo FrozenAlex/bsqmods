@@ -24,7 +24,6 @@ const filteredFunding = funding.filter((url) => isValidUrl(url));
         btn-error
         btn-sm
         funding-link
-        mr-2
         p-0
         qavs-none
         rounded-lg
@@ -38,7 +37,7 @@ const filteredFunding = funding.filter((url) => isValidUrl(url));
 }
 {
   filteredFunding.length > 1 ? (
-    <details class="dropdown mr-2">
+    <details class="dropdown">
       <summary
         class={`
           align-middle

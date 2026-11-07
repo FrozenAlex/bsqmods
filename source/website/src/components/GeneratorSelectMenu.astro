@@ -13,14 +13,14 @@ const { id, values, required = false } = Astro.props as Props;
 <div class="block min-w-0 text-left">
   <label
     for={id}
-    class="generator-label"
+    class="field-label"
   >
     <slot />
     {required && <span class="text-error" aria-hidden="true">*</span>}
   </label>
   <div class="relative">
     <select
-      class="generator-field h-10 cursor-pointer appearance-none pr-9 [&>option]:bg-base-200 [&>option]:text-base-content"
+      class="field-input h-10 cursor-pointer appearance-none pr-9 [&>option]:bg-base-200 [&>option]:text-base-content"
       id={id}
       aria-required={required ? "true" : undefined}
       aria-describedby={Astro.slots.has("description") ? `${id}Description` : undefined}
